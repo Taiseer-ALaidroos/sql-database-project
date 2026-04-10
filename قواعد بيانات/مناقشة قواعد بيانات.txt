@@ -1,0 +1,138 @@
+-- إنشاء جدول ..................STAY الاقامة================= الاقامة يربط (الغرفة, المريض)
+CREATE TABLE STAY (
+    STAYID NUMBER PRIMARY KEY,
+    PATIENT NUMBER,
+    ROOM NUMBER,
+    START_TIME VARCHAR2(10),
+    END_TIME VARCHAR2(10),
+    FOREIGN KEY (PATIENT) REFERENCES PATIENT(PatientId),
+    FOREIGN KEY (ROOM) REFERENCES ROOM(ROOMID) );
+
+-- إنشاء جدول..................... PATIENTالمريض=====يربط (الطبيب)
+CREATE TABLE PATIENT (
+    PatientId NUMBER PRIMARY KEY,
+    NAME VARCHAR2(17),
+    ADDRESS VARCHAR2(18),
+    PHONE VARCHAR2(9),
+    INSURANCEID NUMBER,
+    PCP NUMBER, -- Primary Care Provider
+    FOREIGN KEY (PCP) REFERENCES PHYSICIAN(EMPLOYEEID)
+);
+///////////////////////////////////////////
+-- إنشاء جدول ................UNDERGOES  اجرائات=====يربط (المريض,العمليات,الاقامة,الطبيب, الممرض)
+CREATE TABLE UNDERGOES (
+    PATIENT NUMBER,
+    PROCEDURE NUMBER,
+    STAY NUMBER,
+    DATE1 VARCHAR2(9),
+    PHYSICIAN NUMBER,
+    HELP_NURSE NUMBER,
+    PRIMARY KEY (PATIENT, PROCEDURE, STAY, DATE1),
+    FOREIGN KEY (PATIENT) REFERENCES PATIENT(PATIENTID),
+    FOREIGN KEY (PROCEDURE) REFERENCES PROCEDURE(PROCEDUREID),
+    FOREIGN KEY (STAY) REFERENCES STAY(STAYID),
+    FOREIGN KEY (PHYSICIAN) REFERENCES PHYSICIAN(EMPLOYEEID),
+    FOREIGN KEY (HELP_NURSE) REFERENCES NURSE(EMPLOYEEID));
+///////////////////////////////////////////////////////
+
+-- إنشاء جدول ...........PHYSICIAN الطبيب============ 
+CREATE TABLE PHYSICIAN (
+    EMPLOYEEID NUMBER PRIMARY KEY,
+    NAME VARCHAR2(17),
+    POSITION VARCHAR2(28));
+/////////////////////////////////////////////////
+-- إنشاء جدول............................ ON_CALL استدعاء الممرض===== يربط (الممرض)
+CREATE TABLE ON_CALL_Nurse (
+    NURSE NUMBER,
+    ONCALL_DATE VARCHAR2(10),
+    ONCALLEND VARCHAR2(10),
+    PRIMARY KEY (NURSE,ONCALL_DATE, ONCALLEND),
+    FOREIGN KEY (NURSE) REFERENCES NURSE(EMPLOYEEID));
+
+-- إنشاء جدول ....................DEPARTMENT القسم====
+CREATE TABLE DEPARTMENT (
+    DEPARTMENT_ID NUMBER PRIMARY KEY,
+    NAME VARCHAR2(17),
+    possName VARCHAR2(17));
+لا توجد له فا////////////////////////////////////
+-- إنشاء جدول............ PRESCRIBES وصفات طبية=====يربط(الطبيب,المريض,العلاج,الموعد)
+CREATE TABLE PRESCRIBES (
+    PHYSICIAN NUMBER,
+    PATIENT NUMBER,
+    MEDICATION NUMBER,
+    DATE1 VARCHAR2(15),
+    APPOINTMENT NUMBER,
+    DOSE NUMBER,
+    PRIMARY KEY (PHYSICIAN, MEDICATION, PATIENT, DATE1),
+    FOREIGN KEY (PHYSICIAN) REFERENCES PHYSICIAN(EMPLOYEEID),
+    FOREIGN KEY (PATIENT) REFERENCES PATIENT(PATIENTID),
+    FOREIGN KEY (MEDICATION) REFERENCES MEDICATION(MEDICATIONID),
+    FOREIGN KEY (APPOINTMENT) REFERENCES APPOINTMENT(APPOINTMENTID));
+
+-- إنشاء جدول ...........APPOINTMENTالموعد====يربط(المريض ,الممرض,الطبيب)
+CREATE TABLE APPOINTMENT (
+    APPOINTMENTID NUMBER PRIMARY KEY,
+    PATIENT NUMBER,
+    NURSE NUMBER,
+    PHYSICIAN NUMBER,
+    START_DT VARCHAR2(9),
+    END_DT VARCHAR2(9),
+    EXAMINATIONROOM VARCHAR2(1),
+    FOREIGN KEY (PATIENT) REFERENCES PATIENT(PATIENTID),
+    FOREIGN KEY (NURSE) REFERENCES NURSE(EMPLOYEEID),
+    FOREIGN KEY (PHYSICIAN) REFERENCES PHYSICIAN(EMPLOYEEID));
+
+///////////////////////////
+
+-- إنشاء جدول............................... ROOM الغرف===========
+CREATE TABLE ROOM( ROOMID NUMBER PRIMARY KEY,
+ROOMTYBE VARCHAR2(20),
+UNVALIABLE VARCHAR(1));
+
+-- إنشاء جدول............................... PROCEDURE العمليات===========
+CREATE TABLE PROCEDURE (
+    PROCEDUREID NUMBER PRIMARY KEY,
+    NAME VARCHAR2(30),
+    COST NUMBER);
+.......................................
+//// ايش الفايده____________________________________________________________
+-- إنشاء جدول BLOCK
+CREATE TABLE BLOCK (********************
+    BLOCKKFLOOR NUMBER,*******************
+    BLOCKCODE NUMBER,*********************
+    PRIMARY KEY (BLOCKKFLOOR, BLOCKCODE));******************
+-----------------------------------------------------------------------
+
+-- ...................إنشاء جدول NURSE الممرض==============
+CREATE TABLE NURSE (
+    EMPLOYEEID NUMBER PRIMARY KEY,
+    NAME VARCHAR2(15),
+    POSITION VARCHAR2(10),
+    REGISTERED VARCHAR2(1)
+);
+
+-- إنشاء جدول ............TRAINED_IN التدريب====يربط(الطبيب,العمليات)
+CREATE TABLE TRAINED_IN (
+    PHYSICIAN NUMBER,
+    TREATMENT NUMBER,
+    CERTIFICATIONDATE VARCHAR2(10),
+    CERTIFICATIONEXPIRES VARCHAR2(10),
+    PRIMARY KEY (PHYSICIAN, TREATMENT),
+    FOREIGN KEY (PHYSICIAN) REFERENCES PHYSICIAN(EMPLOYEEID),
+    FOREIGN KEY (TREATMENT) REFERENCES PROCEDURE(PROCEDUREID));
+
+-- إنشاء جدول............ AFFILIATED_WITH =====(وسيط ربط الطبيب مع الاقسام)
+CREATE TABLE CONNECTION (
+    PHYSICIAN NUMBER,
+    DEPARTMENT NUMBER,
+    CONNECTION_VIREFY VARCHAR2(1),
+    PRIMARY KEY (PHYSICIAN, DEPARTMENT),
+    FOREIGN KEY (PHYSICIAN) REFERENCES PHYSICIAN(EMPLOYEEID),
+    FOREIGN KEY (DEPARTMENT) REFERENCES DEPARTMENT(DEPARTMENT_ID)
+);
+
+-- إنشاء جدول .............. العلاج MEDICATION===============================
+CREATE TABLE MEDICATION (
+    MEDICATIONID NUMBER PRIMARY KEY,
+    NAME VARCHAR2(13),
+    BRAND VARCHAR2(23));
